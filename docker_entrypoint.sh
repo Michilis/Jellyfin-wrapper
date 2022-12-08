@@ -10,45 +10,21 @@ _term() {
 
 # FRONTEND SETUP
 
-__MEMPOOL_BACKEND_MAINNET_HTTP_HOST__=${BACKEND_MAINNET_HTTP_HOST:=127.0.0.1}
-__MEMPOOL_BACKEND_MAINNET_HTTP_PORT__=${BACKEND_MAINNET_HTTP_PORT:=8999}
-__MEMPOOL_FRONTEND_HTTP_PORT__=${FRONTEND_HTTP_PORT:=8080}
+__JELLYFIN_BACKEND_MAINNET_HTTP_HOST__=${BACKEND_MAINNET_HTTP_HOST:=127.0.0.1}
+__JELLYFIN_BACKEND_MAINNET_HTTP_PORT__=${BACKEND_MAINNET_HTTP_PORT:=8096}
+__JELLYFIN_FRONTEND_HTTP_PORT__=${FRONTEND_HTTP_PORT:=8080}
 
-sed -i "s/__MEMPOOL_BACKEND_MAINNET_HTTP_HOST__/${__MEMPOOL_BACKEND_MAINNET_HTTP_HOST__}/g" /etc/nginx/conf.d/nginx-mempool.conf
-sed -i "s/__MEMPOOL_BACKEND_MAINNET_HTTP_PORT__/${__MEMPOOL_BACKEND_MAINNET_HTTP_PORT__}/g" /etc/nginx/conf.d/nginx-mempool.conf
+sed -i "s/__JELLYFIN_BACKEND_MAINNET_HTTP_HOST__/${__MEMPOOL_BACKEND_MAINNET_HTTP_HOST__}/g" /etc/nginx/conf.d/nginx-jellyfin.conf
+sed -i "s/__JELLYFIN_BACKEND_MAINNET_HTTP_PORT__/${__MEMPOOL_BACKEND_MAINNET_HTTP_PORT__}/g" /etc/nginx/conf.d/nginx-jellyfin.conf
 
-cp /etc/nginx/conf.d/nginx-mempool.conf /etc/nginx/nginx-mempool.conf
+cp /etc/nginx/conf.d/nginx-jellyfin.conf /etc/nginx/nginx-jellyfin.conf
 
 cp /etc/nginx/nginx.conf /backend/nginx.conf
-sed -i -e "s/__MEMPOOL_FRONTEND_HTTP_PORT__/${__MEMPOOL_FRONTEND_HTTP_PORT__}/g" -e "s/127.0.0.1://" -e "/listen/a\                server_name 127.0.0.1;" -e "s/listen 80/listen 8080/g" /backend/nginx.conf
+sed -i -e "s/__jellyfin_FRONTEND_HTTP_PORT__/${__MEMPOOL_FRONTEND_HTTP_PORT__}/g" -e "s/127.0.0.1://" -e "/listen/a\                server_name 127.0.0.1;" -e "s/listen 80/listen 8080/g" /backend/nginx.conf
 cat /backend/nginx.conf > /etc/nginx/nginx.conf
 
 #  BACKEND SETUP
 
-# read bitcoin proxy creds from start9 config
-HOST_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
-bitcoind_type=$(yq e '.bitcoind.type' /root/start9/config.yaml)
-bitcoind_user=$(yq e '.bitcoind.user' /root/start9/config.yaml)
-bitcoind_pass=$(yq e '.bitcoind.password' /root/start9/config.yaml)
-
-if [ "$bitcoind_type" = "internal-proxy" ]; then
-	bitcoind_host="btc-rpc-proxy.embassy"
-	echo "Running on Bitcoin Proxy..."
-else
-	bitcoind_host="bitcoind.embassy"
-	echo "Running on Bitcoin Core..."
-fi
-sed -i "s/CORE_RPC_HOST:=127.0.0.1/CORE_RPC_HOST:=$bitcoind_host/" start.sh
-sed -i "s/CORE_RPC_USERNAME:=mempool/CORE_RPC_USERNAME:=$bitcoind_user/" start.sh
-sed -i "s/CORE_RPC_PASSWORD:=mempool/CORE_RPC_PASSWORD:=$bitcoind_pass/" start.sh
-if [ "$(yq e ".enable-electrs" /root/start9/config.yaml)" = "true" ]; then
-	sed -i 's/ELECTRUM_HOST:=127.0.0.1/ELECTRUM_HOST:=electrs.embassy/' start.sh
-	sed -i 's/ELECTRUM_PORT:=50002/ELECTRUM_PORT:=50001/' start.sh
-else
-	# configure mempool to use just a bitcoind backend
-	sed -i '/^node \/backend\/dist\/index.js/i jq \x27.MEMPOOL.BACKEND="none"\x27 \/backend\/mempool-config.json > \/backend\/mempool-config.json.tmp && mv \/backend\/mempool-config.json.tmp \/backend\/mempool-config.json' start.sh
-	sed -i 's/MEMPOOL_BACKEND:=electrum/MEMPOOL_BACKEND:=none/' start.sh
-fi
 # DATABASE SETUP
 
 if [ -d "/run/mysqld" ]; then
@@ -77,9 +53,9 @@ else
 		export MYSQL_ROOT_PASSWORD
 	fi
 
-	MYSQL_DATABASE=${MYSQL_DATABASE:-"mempool"}
-	MYSQL_USER=${MYSQL_USER:-"mempool"}
-	MYSQL_PASSWORD=${MYSQL_PASSWORD:-"mempool"}
+	MYSQL_DATABASE=${MYSQL_DATABASE:-"jellyfin"}
+	MYSQL_USER=${MYSQL_USER:-"jellyfin"}
+	MYSQL_PASSWORD=${MYSQL_PASSWORD:-"jellyfin"}
 
 	tfile=`mktemp`
 	if [ ! -f "$tfile" ]; then
