@@ -1,6 +1,7 @@
-# Wrapper for Mempool
+# Wrapper for Jellyfin
 
-[mempool](http://mempool.space/) is a fully featured visualizer, explorer, and API service for the Bitcoin mempool, with a focus on the emerging transaction fee market to help our transition into a multi-layer ecosystem
+[Jellyfin]The Free Software Media System
+Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached. Your media, your server, your way.
 
 ## Dependencies
 
@@ -16,8 +17,8 @@
 Clone the project locally. Note the submodule link to the original project(s). 
 
 ```
-git clone https://github.com/Start9Labs/mempoolwrapper.git
-cd mempool-wrapper
+git clone https://github.com/Michilis/Jellyfin-wrapper/
+cd jellyfin-wrapper
 git submodule update --init --recursive
 docker run --privileged --rm tonistiigi/binfmt --install arm64,riscv64,arm
 ```
@@ -36,12 +37,12 @@ SSH into an Embassy device.
 `scp` the `.s9pk` to any directory from your local machine.
 
 ```
-scp mempool.s9pk root@<LAN ID>:/tmp
+scp jellyfin.s9pk root@<LAN ID>:/tmp
 ```
 
 Run the following command to determine successful install:
 
 ```
 embassy-cli auth login
-embassy-cli package install /tmp/mempool.s9pk
+embassy-cli package install /tmp/jellyfin.s9pk
 ```
