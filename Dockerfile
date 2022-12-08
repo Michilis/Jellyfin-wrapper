@@ -6,11 +6,11 @@ ARG PLATFORM
 ARG ARCH
 
 WORKDIR /build
-COPY mempool/ .
+COPY jellyfin/ .
 # because just a submodule in wrapper project
 RUN rm .git && sh docker/init.sh
 # generate-config.js uses this ref
-COPY .git/modules/mempool/refs/heads/master .git/refs/heads/master
+COPY .git/modules/jellyfin/refs/heads/master .git/refs/heads/master
 
 RUN apt-get update && apt-get install -y build-essential python3 pkg-config rsync
 
@@ -21,7 +21,7 @@ WORKDIR /build/backend
 RUN npm ci --production && npm i typescript && npm run build
 
 WORKDIR /build
-RUN cp docker/backend/mempool-config.json backend/
+RUN cp docker/backend/jellyfin-config.json backend/
 
 FROM node:16-buster-slim
 
