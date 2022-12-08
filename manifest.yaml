@@ -1,18 +1,18 @@
-id: mempool
-title: Mempool
-version: 2.4.0.3
+id: Jellyfin
+title: JellyFin
+version: 0.1
 release-notes: | 
-  * Updated Mempool to run x86_64 architecture
+  * First Release
 license: AGPL
-wrapper-repo: "https://github.com/Start9Labs/mempool-wrapper"
-upstream-repo: "https://github.com/mempool/mempool"
-support-site: "https://mempool.space/docs/api/rest"
-marketing-site: "https://mempool.space/"
-donation-url: "https://mempool.space/sponsor"
+wrapper-repo: "https://github.com/Michilis/Jellyfin-wrapper"
+upstream-repo: "https://github.com/jellyfin/jellyfin"
+support-site: "https://jellyfin.org/contact"
+marketing-site: "https://jellyfin.org"
+donation-url: "https://jellyfin.org/contribute"
 build: ["make"]
 description:
-  short: "A Bitcoin node and network visualizer."
-  long: "Mempool is the fully featured visualizer, explorer, and API service running on https://mempool.space/, an open source project developed and operated for the benefit of the Bitcoin community, with a focus on the emerging transaction fee market to help our transition into a multi-layer ecosystem."
+  short: "The Free Software Media System"
+  long: "Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached. Your media, your server, your way."
 assets:
   license: LICENSE
   icon: icon.png
@@ -27,11 +27,11 @@ main:
 health-checks:
   web-ui:
     name: Web Interface
-    success-message: The Mempool UI is ready to visit in a web browser
+    success-message: The Jellyfin UI is ready to visit in a web browser
     type: script
   api:
     name: API
-    success-message: The Mempool API is reachable and responsive.
+    success-message: The Jellyfin API is reachable and responsive.
     type: docker
     image: main
     system: false
@@ -40,64 +40,21 @@ health-checks:
     args: ["api"]
     mounts: {}
     io-format: json
-  synced:
-    name: Transaction Indexer
-    success-message: Bitcoin is fully indexed. You may now launch Mempool.
-    type: docker
-    image: main
-    system: false
-    entrypoint: check-synced.sh
-    inject: true
-    args: ["sync"]
-    mounts: {}
-    io-format: json
 config:
   get:
     type: script
   set:
     type: script
-properties:
-  type: script
-dependencies:
-  bitcoind:
-    version: ">=0.21.1.2 <26.0.0"
-    requirement:
-      type: "opt-out"
-      how: Can alternatively configure proxy or bitcoin core  node.
-    description: Used to subscribe to new block events from a full archival node
-    config:
-      check:
-        type: script
-      auto-configure:
-        type: script
-  btc-rpc-proxy:
-    version: ">=0.3.2.5 <0.4.0"
-    requirement:
-      type: "opt-in"
-      how: Can alternatively configure proxy or bitcoin core  node.
-    description: Used for RPC permissioning.
-    config:
-      check:
-        type: script
-      auto-configure:
-        type: script
-  electrs:
-    version: ">=0.9.6 <0.10.0"
-    requirement:
-      type: "opt-out"
-      how: Set Enable Electrs to Disabled in the config
-    description: Used to provide an index for address lookups
 volumes: 
   main:
     type: data 
 alerts:
   start: |
-    READ CAREFULLY! When first running Mempool, previous block fee estimates will show as zero values until the service is able to catch up. This is expected behaviour.
-    ALSO: Lookups may be slow or time out altogether while the service is still warming up, or if there are too many other things running on your system. If address lookups aren't working, try restarting electrs and try the lookup again.
+    READ CAREFULLY! Lookups may be slow or time out altogether while the service is still warming up, or if there are too many other things running on your system.
 interfaces:
   main:
-    name: Mempool Interface
-    description: Specifies the mempool interface to listen on for HTTP connections.
+    name: Jellyfin Interface
+    description: Specifies the Jellyfin interface to listen on for HTTP connections.
     tor-config:
       port-mapping:
         80: "8080"
